@@ -1,61 +1,43 @@
-import { supabase } from "./supabase/client"
 import type { User } from "./types"
 
-export async function signUp(email: string, password: string, fullName: string, role = "student") {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
+// Simulated user database
+const users: User[] = [
+  {
+    id: "1",
+    registrationNumber: "220014748",
+    email: "student@university.edu",
+    name: "John Doe",
+    role: "student",
+    createdAt: new Date(),
+  },
+  {
+    id: "2",
+    email: "admin@university.edu",
+    name: "Admin User",
+    role: "admin",
+    createdAt: new Date(),
+  },
+  {
+    id: "3",
+    email: "superadmin@university.edu",
+    name: "Super Admin",
+    role: "super_admin",
+    createdAt: new Date(),
+  },
+]
 
-  if (error) throw error
+export function validateRegistrationNumber(regNumber: string): boolean {
+  return /^2\d{8}$/.test(regNumber)
+}
 
-  if (data.user) {
-    // Create user profile
-    const { error: profileError } = await supabase.from("users").insert({
-      id: data.user.id,
-      email,
-      full_name: fullName,
-      role,
-    })
-
-    if (profileError) throw profileError
-
-    // If student, create student profile
-    if (role === "student") {
-      const { error: studentError } = await supabase.from("students").insert({
-        user_id: data.user.id,
-      })
-
-      if (studentError) throw studentError
-    }
+export function authenticateStudent(registrationNumber: string): User | null {
+  if (!validateRegistrationNumber(registrationNumber)) {
+    return null
   }
-
-  return data
+  return users.find((u) => u.registrationNumber === registrationNumber) || null
 }
 
-export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (error) throw error
-  return data
-}
-
-export async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
-}
-
-export async function getCurrentUser(): Promise<User | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return null
-
-  const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single()
-
-  return profile
+export function authenticateUser(email: string, password: string): User | null {
+  // Simplified authentication - in real app, verify password hash
+  return users.find((u) => u.email === email) || null
 }

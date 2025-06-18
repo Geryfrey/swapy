@@ -1,78 +1,73 @@
 export interface User {
   id: string
+  registrationNumber?: string // For students (9 digits starting with 2)
   email: string
-  full_name: string
-  role: "student" | "health_professional" | "admin"
-  created_at: string
-  updated_at: string
+  name: string
+  role: "student" | "admin" | "super_admin"
+  createdAt: Date
 }
 
-export interface Student {
+export interface MentalHealthCenter {
   id: string
-  user_id: string
-  student_id?: string
-  date_of_birth?: string
-  phone?: string
-  emergency_contact?: string
-  emergency_phone?: string
-  user?: User
-}
-
-export interface HealthProfessional {
-  id: string
-  user_id: string
-  license_number?: string
-  specialization?: string
-  phone?: string
-  location?: string
-  availability_hours?: any
-  is_approved: boolean
-  user?: User
-}
-
-export interface Assessment {
-  id: string
-  student_id: string
-  responses: any
-  anxiety_score?: number
-  depression_score?: number
-  stress_score?: number
-  overall_wellbeing_score?: number
-  sentiment_score?: number
-  sentiment_label?: "very_negative" | "negative" | "neutral" | "positive" | "very_positive"
-  ai_analysis?: string
-  recommendations?: string[]
-  risk_level?: "low" | "moderate" | "high" | "critical"
-  created_at: string
+  name: string
+  address: string
+  phone: string
+  email: string
+  specialties: string[]
+  availability: string
+  rating: number
+  distance?: number
 }
 
 export interface Resource {
   id: string
   title: string
-  description?: string
-  content?: string
-  resource_type: "article" | "video" | "audio" | "pdf" | "external_link"
-  url?: string
-  category?: string
-  tags?: string[]
-  is_featured: boolean
-  created_by?: string
-  created_at: string
+  type: "article" | "blog" | "video" | "guide"
+  content: string
+  summary: string
+  tags: string[]
+  author: string
+  publishedAt: Date
+  readTime: number
 }
 
-export interface Appointment {
+export interface Assessment {
   id: string
-  student_id: string
-  health_professional_id: string
-  assessment_id?: string
-  appointment_date: string
-  duration_minutes: number
-  status: "pending" | "approved" | "rejected" | "completed" | "cancelled"
-  notes?: string
-  student_notes?: string
-  professional_notes?: string
-  created_at: string
-  updated_at: string
-  student?: Student
-  health_professional?: HealthProfessional
+  studentId: string
+  responses: Record<string, any>
+  predictions: {
+    conditions: string[]
+    riskLevel: "critical" | "moderate" | "low"
+    sentiment: "positive" | "negative" | "neutral"
+    confidence: number
+  }
+  recommendations: {
+    centers?: MentalHealthCenter[]
+    resources: Resource[]
+  }
+  createdAt: Date
+}
+
+export interface JournalEntry {
+  id: string
+  studentId: string
+  title: string
+  content: string
+  mood: string
+  tags: string[]
+  createdAt: Date
+}
+
+export interface Report {
+  id: string
+  type: "weekly" | "monthly" | "quarterly" | "yearly"
+  period: string
+  data: {
+    totalAssessments: number
+    riskDistribution: Record<string, number>
+    commonConditions: Record<string, number>
+    sentimentAnalysis: Record<string, number>
+    trends: any[]
+  }
+  generatedAt: Date
 }
